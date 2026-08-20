@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS event_logs;
+DROP TABLE IF EXISTS notification_reminders;
+DROP TABLE IF EXISTS distribution_records;
+DROP TABLE IF EXISTS config_templates;
+DROP TABLE IF EXISTS rotation_tasks;
+DROP TABLE IF EXISTS rotation_plans;
+DROP TABLE IF EXISTS certificates;
+DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS policies;
+DROP TABLE IF EXISTS issuers;

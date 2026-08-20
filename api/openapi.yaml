@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: CertPilot API
+  version: 1.0.0
+  description: 证书生命周期与安全配置分发平台 REST API
+servers:
+  - url: http://127.0.0.1:8080
+paths:
+  /healthz:
+    get:
+      responses:
+        "200":
+          description: healthy
+  /readyz:
+    get:
+      responses:
+        "200":
+          description: ready
+  /metrics:
+    get:
+      responses:
+        "200":
+          description: Prometheus text metrics
+  /api/v1/services:
+    get:
+      summary: 服务目录分页查询
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: page_size
+          schema: { type: integer }
+        - in: query
+          name: environment
+          schema: { type: string }
+        - in: query
+          name: sort
+          schema: { type: string }
+        - in: query
+          name: sort_dir
+          schema: { type: string, enum: [asc, desc] }
+      responses:
+        "200":
+          description: service list
+    post:
+      summary: 登记服务
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, environment, domain, owner]
+              properties:
+                name: { type: string }
+                environment: { type: string }
+                domain: { type: string }
+                owner: { type: string }
+                region: { type: string }
+      responses:
+        "201":
+          description: created service
+  /api/v1/policies:
+    get:
+      summary: 策略列表
+      responses:
+        "200":
+          description: policy list
+    post:
+      summary: 创建签发策略
+      responses:
+        "201":
+          description: created policy
+  /api/v1/certificates/issue:
+    post:
+      summary: 提交证书申请
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [service_id, common_name]
+              properties:
+                service_id: { type: string }
+                common_name: { type: string }
+                sans:
+                  type: array
+                  items: { type: string }
+                validity_days: { type: integer }
+                idempotency_key: { type: string }
+      responses:
+        "201":
+          description: issued certificate
+  /api/v1/config-templates:
+    get:
+      summary: 安全配置模板列表
+      responses:
+        "200":
+          description: template list
+    post:
+      summary: 创建安全配置模板
+      responses:
+        "201":
+          description: created template
+  /api/v1/distributions:
+    get:
+      summary: 配置分发记录列表
+      responses:
+        "200":
+          description: distribution list
+    post:
+      summary: 下发配置
+      responses:
+        "201":
+          description: distribution record
+  /api/v1/rotation/plans/generate:
+    post:
+      summary: 生成轮换计划
+      responses:
+        "201":
+          description: generated plans
+  /api/v1/rotation/tasks:
+    get:
+      summary: 轮换任务列表
+      responses:
+        "200":
+          description: task list
+  /api/v1/notifications/reminders/scan:
+    post:
+      summary: 扫描到期提醒
+      responses:
+        "201":
+          description: created reminders
+  /api/v1/notifications/reminders:
+    get:
+      summary: 到期提醒列表
+      responses:
+        "200":
+          description: reminder list
+  /api/v1/events:
+    get:
+      summary: 操作事件日志
+      responses:
+        "200":
+          description: event list

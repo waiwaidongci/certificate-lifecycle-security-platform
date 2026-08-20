@@ -1,0 +1,25 @@
+server:
+  address: ":8080"
+  shutdown_timeout: "15s"
+  read_timeout: "10s"
+  write_timeout: "15s"
+  idle_timeout: "60s"
+  rate_limit_rps: 100
+  rate_limit_burst: 200
+
+database:
+  driver: "sqlite"
+  dsn: "certpilot.db"
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_lifetime: "30m"
+
+issuer:
+  default_lifetime_days: 90
+  common_name: "CertPilot Local Issuer"
+
+rotation:
+  default_advance_days: 30
+
+webhook:
+  timeout: "5s"
