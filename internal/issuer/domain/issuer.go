@@ -42,7 +42,12 @@ type IssueRequest struct {
 }
 
 func (r IssueRequest) Clone() IssueRequest {
-	return r
+	clone := r
+	if r.SANs != nil {
+		clone.SANs = make([]string, len(r.SANs))
+		copy(clone.SANs, r.SANs)
+	}
+	return clone
 }
 
 type IssueResult struct {

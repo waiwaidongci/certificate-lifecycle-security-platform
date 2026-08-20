@@ -11,7 +11,9 @@ type issueRequest struct {
 }
 
 func (r issueRequest) command() application.IssueCommand {
-	return application.IssueCommand{ServiceID: r.ServiceID, CommonName: r.CommonName, SANs: r.SANs, ValidityDays: r.ValidityDays, IdempotencyKey: r.IdempotencyKey}
+	sans := make([]string, len(r.SANs))
+	copy(sans, r.SANs)
+	return application.IssueCommand{ServiceID: r.ServiceID, CommonName: r.CommonName, SANs: sans, ValidityDays: r.ValidityDays, IdempotencyKey: r.IdempotencyKey}
 }
 
 type revokeRequest struct {

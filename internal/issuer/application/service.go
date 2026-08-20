@@ -73,5 +73,5 @@ func (s *Service) List(ctx context.Context, options domain.ListOptions) ([]domai
 }
 
 func (s *Service) Issue(ctx context.Context, request domain.IssueRequest) (domain.IssueResult, error) {
-	return s.issuerPort.Issue(ctx, request)
+	return s.issuerPort.Issue(ctx, request.Clone())
 }
