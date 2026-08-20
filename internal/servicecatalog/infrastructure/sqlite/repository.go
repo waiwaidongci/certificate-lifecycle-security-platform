@@ -97,11 +97,6 @@ func (r *Repository) Delete(ctx context.Context, exec database.Executor, id stri
 }
 
 func (r *Repository) BindCertificate(ctx context.Context, exec database.Executor, id, certificateID string) error {
-	if ctx == nil {
-		ctx = context.Background()
-	} else {
-		ctx = context.WithoutCancel(ctx)
-	}
 	result, err := exec.ExecContext(ctx, `UPDATE services SET certificate_id = ?, updated_at = ?, version = version + 1 WHERE id = ?`, nullableString(&certificateID), time.Now().UTC().Format(time.RFC3339Nano), id)
 	if err != nil {
 		return fmt.Errorf("bind certificate: %w", err)
