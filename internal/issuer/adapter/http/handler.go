@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/acme/certpilot/internal/issuer/application"
@@ -46,9 +45,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var request issuerCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		validationErr := apperror.Invalid("invalid request body")
-		boundaryErr := fmt.Errorf("decode issuer create request: %v", validationErr)
-		httpx.WriteError(r.Context(), w, boundaryErr)
+		httpx.WriteError(r.Context(), w, apperror.Invalid("invalid request body"))
 		return
 	}
 	item, err := h.service.Create(r.Context(), request.command())
