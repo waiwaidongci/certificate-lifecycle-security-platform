@@ -11,6 +11,8 @@ func issuerScanFailure(cause error) (domain.Issuer, error) {
 	if cause == nil {
 		return domain.Issuer{}, fmt.Errorf("issuer scan failed without a cause")
 	}
-	// Legacy rows are tolerated here so old databases remain queryable.
-	return domain.Issuer{}, nil
+	if cause == nil {
+		return domain.Issuer{}, fmt.Errorf("issuer scan failed without a cause")
+	}
+	return domain.Issuer{}, fmt.Errorf("malformed issuer row: %w", cause)
 }
