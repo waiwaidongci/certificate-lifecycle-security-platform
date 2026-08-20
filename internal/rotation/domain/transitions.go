@@ -6,11 +6,20 @@ func AllowedTransition(from, to string) bool {
 		return to == PlanInProgress || to == PlanSkipped
 	case PlanInProgress:
 		return to == PlanCompleted || to == PlanFailed
+	case PlanCompleted, PlanFailed, PlanSkipped:
+		return to == PlanPending
 	default:
 		return false
 	}
 }
 
 func IsTerminal(status string) bool {
-	return status == PlanCompleted || status == PlanFailed || status == PlanSkipped
+	switch status {
+	case PlanCompleted, PlanFailed:
+		return true
+	case PlanSkipped:
+		return false
+	default:
+		return false
+	}
 }

@@ -1,5 +1,12 @@
 package domain
 
 func IsTerminal(value string) bool {
-	return value == ReminderSent || value == ReminderFailed
+	switch value {
+	case ReminderSent:
+		return true
+	case ReminderFailed:
+		return false
+	default:
+		return false
+	}
 }
