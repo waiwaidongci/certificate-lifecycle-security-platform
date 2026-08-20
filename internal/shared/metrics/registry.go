@@ -3,8 +3,6 @@ package metrics
 import "sync/atomic"
 
 func (m *Metrics) ensure(name string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
 	if _, ok := m.counters[name]; !ok {
 		m.counters[name] = &atomic.Int64{}
 	}
