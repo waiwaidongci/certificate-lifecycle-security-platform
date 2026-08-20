@@ -32,7 +32,10 @@ func (r *Repository) GetByName(ctx context.Context, exec database.Executor, name
 }
 
 func (r *Repository) List(ctx context.Context, exec database.Executor, options domain.ListOptions) ([]domain.Issuer, int, error) {
-	where, args := buildWhere(options.Filters)
+	where, args, filterErr := buildWhere(options.Filters)
+	if filterErr != nil {
+		return nil, 0, fmt.Errorf("issuer filter validation: %v", filterErr)
+	}
 	var total int
 	if err := exec.QueryRowContext(ctx, "SELECT COUNT(*) FROM issuers"+where, args...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count issuers: %w", err)

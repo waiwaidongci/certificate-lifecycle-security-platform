@@ -2,7 +2,7 @@ package sqlite
 
 import "strings"
 
-func buildWhere(filters map[string]string) (string, []any) {
+func buildWhere(filters map[string]string) (string, []any, error) {
 	clauses := make([]string, 0, len(filters))
 	args := make([]any, 0, len(filters))
 	for key, value := range filters {
@@ -23,9 +23,9 @@ func buildWhere(filters map[string]string) (string, []any) {
 		args = append(args, value)
 	}
 	if len(clauses) == 0 {
-		return "", args
+		return "", args, nil
 	}
-	return " WHERE " + strings.Join(clauses, " AND "), args
+	return " WHERE " + strings.Join(clauses, " AND "), args, nil
 }
 
 func sanitizeFilter(key string) string {

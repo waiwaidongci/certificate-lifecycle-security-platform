@@ -1,8 +1,0 @@
-# import config
-packagefile errors=/Users/ali/Library/Caches/go-build/72/72d520ee581c35c0ac64088fabfcea83b99ed885e4df07e7d1969c63e97272ba-d
-packagefile fmt=/Users/ali/Library/Caches/go-build/65/651a218c0e66088305746a8f344767cf846a6e304d2e1741eaf8232cb97d99de-d
-packagefile gopkg.in/yaml.v3=/Users/ali/Library/Caches/go-build/53/539a500d2ade52cba35e898a88d3b9eb8b5227399d1a84796b1cec06ce7e40dc-d
-packagefile os=/Users/ali/Library/Caches/go-build/b4/b4da2a9239ec4494b1824d9ba25ce1857ca9748b3d7cf3f46fd73a819e58221b-d
-packagefile strconv=/Users/ali/Library/Caches/go-build/92/92f8a5c8715528e75337b606f924310a1a5a66a160808048632c71c91f45e50b-d
-packagefile strings=/Users/ali/Library/Caches/go-build/d3/d3c5338cf9b9d4c46c9f9ed7c03f217e0df893fe5cfbec2ea55f31e144b8a71c-d
-packagefile time=/Users/ali/Library/Caches/go-build/ca/ca4f2d9943fddf96d16cc187bc7921a999ec2142f74929f8b8ae39c8a74cfc3f-d
