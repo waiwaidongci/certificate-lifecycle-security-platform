@@ -41,6 +41,10 @@ type IssueRequest struct {
 	Environment  string
 }
 
+func (r IssueRequest) Clone() IssueRequest {
+	return r
+}
+
 type IssueResult struct {
 	SerialNumber   string    `json:"serial_number"`
 	Fingerprint    string    `json:"fingerprint"`

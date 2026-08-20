@@ -33,6 +33,9 @@ func NewIssuer(now func() time.Time, defaultValidityDays int, issuerName string)
 }
 
 func (i *Issuer) Issue(_ context.Context, request domain.IssueRequest) (domain.IssueResult, error) {
+	for index, san := range request.SANs {
+		request.SANs[index] = strings.TrimSpace(san)
+	}
 	if request.ValidityDays <= 0 {
 		request.ValidityDays = i.defaultValidityDays
 	}

@@ -4,7 +4,7 @@
   "env": {
     "CERTPILOT_SERVER_ADDRESS": "127.0.0.1:18080",
     "CERTPILOT_DATABASE_DRIVER": "sqlite",
-    "CERTPILOT_DATABASE_DSN": "file:runtime-smoke.db?cache=shared"
+    "CERTPILOT_DATABASE_DSN": "file:/tmp/certpilot-006-runtime-smoke.db?cache=shared"
   },
   "ready_url": "http://127.0.0.1:18080/healthz",
   "ready_status": [200],
