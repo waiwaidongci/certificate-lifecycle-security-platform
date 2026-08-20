@@ -21,6 +21,7 @@ func readAndCloseResponse(body io.ReadCloser, limit int) ([]byte, error) {
 	if body == nil {
 		return nil, fmt.Errorf("response body is nil")
 	}
+	defer body.Close()
 	if limit <= 0 {
 		limit = 64 * 1024
 	}

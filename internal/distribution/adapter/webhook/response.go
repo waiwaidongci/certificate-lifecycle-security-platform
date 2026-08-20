@@ -8,11 +8,11 @@ import (
 )
 
 func readWebhookResponse(resp *http.Response) (string, error) {
+	body, readErr := httpx.ReadAndClose(resp.Body, 64*1024)
+	if readErr != nil {
+		return "", fmt.Errorf("read webhook response: %w", readErr)
+	}
 	if resp.StatusCode >= 300 {
-		body, readErr := httpx.ReadAndClose(resp.Body, 64*1024)
-		if readErr != nil {
-			return "", fmt.Errorf("read webhook response: %w", readErr)
-		}
 		return "", fmt.Errorf("webhook returned status %d: %s", resp.StatusCode, string(body))
 	}
 	return "webhook accepted", nil
