@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	certapp "github.com/acme/certpilot/internal/certificate/application"
@@ -29,6 +30,7 @@ type Service struct {
 	events       *application.Service
 	clock        clock.Clock
 	adapters     map[string]NotificationAdapter
+	inflight     sync.Map
 }
 
 func NewService(db *database.DB, repository domain.Repository, certificates *certapp.Service, services *serviceapp.Service, events *application.Service, clk clock.Clock, adapters map[string]NotificationAdapter) *Service {
@@ -109,6 +111,9 @@ func (s *Service) SendPending(ctx context.Context, limit int) ([]domain.Reminder
 	}
 	sent := make([]domain.Reminder, 0, len(reminders))
 	for _, reminder := range reminders {
+		if _, loaded := s.inflight.LoadOrStore(reminder.ID, struct{}{}); loaded {
+			continue
+		}
 		adapter, ok := s.adapters[reminder.Channel]
 		if !ok {
 			reminder.Status = domain.ReminderFailed
@@ -122,6 +127,7 @@ func (s *Service) SendPending(ctx context.Context, limit int) ([]domain.Reminder
 			now := s.clock.Now()
 			reminder.SentAt = &now
 		}
+		s.inflight.Delete(reminder.ID)
 		if err := s.repository.UpdateStatus(ctx, s.db, reminder); err != nil {
 			return sent, err
 		}
