@@ -2,10 +2,8 @@ package domain
 
 func IsTerminal(value string) bool {
 	switch value {
-	case ReminderSent:
+	case ReminderSent, ReminderFailed:
 		return true
-	case ReminderFailed:
-		return false
 	default:
 		return false
 	}

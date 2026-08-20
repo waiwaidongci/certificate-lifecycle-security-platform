@@ -2,10 +2,8 @@ package domain
 
 func IsValidStatus(value string) bool {
 	switch value {
-	case StatusIssued, StatusRevoked:
+	case StatusIssued, StatusRevoked, StatusExpired:
 		return true
-	case StatusExpired:
-		return false
 	default:
 		return false
 	}
