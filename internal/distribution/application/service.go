@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"sync"
 	"time"
 
 	certapp "github.com/acme/certpilot/internal/certificate/application"
@@ -29,6 +30,7 @@ type Service struct {
 	events       *application.Service
 	clock        clock.Clock
 	adapters     map[string]DistributionAdapter
+	inFlight     sync.Map
 }
 
 func NewService(db *database.DB, repository domain.Repository, services *serviceapp.Service, certificates *certapp.Service, events *application.Service, clk clock.Clock, adapters map[string]DistributionAdapter) *Service {
@@ -127,6 +129,11 @@ func (s *Service) Distribute(ctx context.Context, command DistributeCommand) (do
 	if command.ServiceID == "" || command.TemplateID == "" || command.TargetType == "" {
 		return domain.DistributionRecord{}, apperror.Invalid("service_id, template_id and target_type are required")
 	}
+	key := command.ServiceID + "|" + command.TemplateID + "|" + command.TargetType + "|" + command.Target
+	if _, loaded := s.inFlight.LoadOrStore(key, struct{}{}); loaded {
+		return domain.DistributionRecord{}, apperror.Conflict("a distribution for this service, template and target is already in progress")
+	}
+	defer s.inFlight.Delete(key)
 	service, err := s.services.Get(ctx, command.ServiceID)
 	if err != nil {
 		return domain.DistributionRecord{}, err
