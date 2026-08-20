@@ -14,7 +14,7 @@ import (
 
 // ReadAndClose consumes a bounded response body and reports read failures.
 func ReadAndClose(body io.ReadCloser, limit int) ([]byte, error) {
-	return readAndCloseResponse(body, limit)
+	return responseBodyReader(body, limit)
 }
 
 func readAndCloseResponse(body io.ReadCloser, limit int) ([]byte, error) {

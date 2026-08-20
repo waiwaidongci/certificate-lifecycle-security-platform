@@ -43,5 +43,5 @@ func (a *Adapter) Send(ctx context.Context, record domain.DistributionRecord) (s
 	if err != nil {
 		return "", err
 	}
-	return readWebhookResponse(resp)
+	return consumeWebhookResponse(resp)
 }
