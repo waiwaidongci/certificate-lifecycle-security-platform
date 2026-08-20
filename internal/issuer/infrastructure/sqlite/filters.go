@@ -1,6 +1,10 @@
 package sqlite
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/acme/certpilot/internal/shared/apperror"
+)
 
 func buildWhere(filters map[string]string) (string, []any, error) {
 	clauses := make([]string, 0, len(filters))
@@ -11,11 +15,11 @@ func buildWhere(filters map[string]string) (string, []any, error) {
 			continue
 		}
 		if key == "enabled" {
-			if value == "true" || value == "1" {
-				args = append(args, 1)
-			} else {
-				args = append(args, 0)
+			enabled, err := parseEnabledFilter(value)
+			if err != nil {
+				return "", nil, err
 			}
+			args = append(args, enabled)
 			clauses = append(clauses, column+" = ?")
 			continue
 		}
@@ -26,6 +30,17 @@ func buildWhere(filters map[string]string) (string, []any, error) {
 		return "", args, nil
 	}
 	return " WHERE " + strings.Join(clauses, " AND "), args, nil
+}
+
+func parseEnabledFilter(value string) (int, error) {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "true", "1":
+		return 1, nil
+	case "false", "0":
+		return 0, nil
+	default:
+		return 0, apperror.Invalid("enabled filter must be true, false, 1, or 0")
+	}
 }
 
 func sanitizeFilter(key string) string {
