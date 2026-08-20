@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	certapp "github.com/acme/certpilot/internal/certificate/application"
@@ -29,10 +30,12 @@ type Service struct {
 	events       *application.Service
 	clock        clock.Clock
 	adapters     map[string]NotificationAdapter
+	pendingMu    sync.Mutex
+	pendingClaim map[string]struct{}
 }
 
 func NewService(db *database.DB, repository domain.Repository, certificates *certapp.Service, services *serviceapp.Service, events *application.Service, clk clock.Clock, adapters map[string]NotificationAdapter) *Service {
-	return &Service{db: db, repository: repository, certificates: certificates, services: services, events: events, clock: clk, adapters: adapters}
+	return &Service{db: db, repository: repository, certificates: certificates, services: services, events: events, clock: clk, adapters: adapters, pendingClaim: make(map[string]struct{})}
 }
 
 func (s *Service) Scan(ctx context.Context, advanceDays int, channel string) ([]domain.Reminder, error) {
@@ -109,23 +112,14 @@ func (s *Service) SendPending(ctx context.Context, limit int) ([]domain.Reminder
 	}
 	sent := make([]domain.Reminder, 0, len(reminders))
 	for _, reminder := range reminders {
-		adapter, ok := s.adapters[reminder.Channel]
-		if !ok {
-			reminder.Status = domain.ReminderFailed
-			reminder.Message = "unsupported notification channel"
-		} else if response, sendErr := adapter.Send(ctx, reminder); sendErr != nil {
-			reminder.Status = domain.ReminderFailed
-			reminder.Message = sendErr.Error()
-		} else {
-			reminder.Status = domain.ReminderSent
-			reminder.Message = response
-			now := s.clock.Now()
-			reminder.SentAt = &now
+		if !s.claimPending(reminder.ID) {
+			continue
 		}
-		if err := s.repository.UpdateStatus(ctx, s.db, reminder); err != nil {
+		processed, err := s.processPending(ctx, reminder)
+		if err != nil {
 			return sent, err
 		}
-		sent = append(sent, reminder)
+		sent = append(sent, processed)
 	}
 	return sent, nil
 }
