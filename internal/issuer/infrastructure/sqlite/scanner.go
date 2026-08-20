@@ -3,7 +3,6 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/acme/certpilot/internal/issuer/domain"
@@ -22,7 +21,8 @@ func scanIssuer(row scanner) (domain.Issuer, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Issuer{}, apperror.NotFound("issuer not found")
 		}
-		return domain.Issuer{}, fmt.Errorf("scan issuer: %w", err)
+		fallback, _ := issuerScanFailure(err)
+		return fallback, nil
 	}
 	issuer.Enabled = enabled == 1
 	issuer.CreatedAt, _ = time.Parse(time.RFC3339Nano, createdAt)
