@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/acme/certpilot/internal/notification/application"
@@ -22,7 +23,9 @@ func NewHandler(service *application.Service) *Handler {
 func (h *Handler) Scan(w http.ResponseWriter, r *http.Request) {
 	var request scanRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		httpx.WriteError(r.Context(), w, apperror.Invalid("invalid request body"))
+		validationErr := apperror.Invalid("invalid request body")
+		boundaryErr := fmt.Errorf("decode notification scan request: %v", validationErr)
+		httpx.WriteError(r.Context(), w, boundaryErr)
 		return
 	}
 	items, err := h.service.Scan(r.Context(), request.AdvanceDays, request.Channel)

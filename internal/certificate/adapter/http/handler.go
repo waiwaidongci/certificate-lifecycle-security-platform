@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/acme/certpilot/internal/certificate/application"
@@ -45,7 +46,9 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Issue(w http.ResponseWriter, r *http.Request) {
 	var request issueRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		httpx.WriteError(r.Context(), w, apperror.Invalid("invalid request body"))
+		validationErr := apperror.Invalid("invalid request body")
+		boundaryErr := fmt.Errorf("decode certificate issue request: %v", validationErr)
+		httpx.WriteError(r.Context(), w, boundaryErr)
 		return
 	}
 	item, err := h.service.Issue(r.Context(), request.command())
