@@ -33,9 +33,8 @@ func NewIssuer(now func() time.Time, defaultValidityDays int, issuerName string)
 }
 
 func (i *Issuer) Issue(_ context.Context, request domain.IssueRequest) (domain.IssueResult, error) {
-	for index, san := range request.SANs {
-		request.SANs[index] = strings.TrimSpace(san)
-	}
+	request = request.Clone()
+	request.SANs = normalizeSANs(request.SANs)
 	if request.ValidityDays <= 0 {
 		request.ValidityDays = i.defaultValidityDays
 	}
@@ -52,6 +51,20 @@ func (i *Issuer) Issue(_ context.Context, request domain.IssueRequest) (domain.I
 		CertificatePEM: cert,
 		IssuerID:       "local-mock-issuer",
 	}, nil
+}
+
+func normalizeSANs(values []string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	normalized := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			normalized = append(normalized, value)
+		}
+	}
+	return normalized
 }
 
 func buildPlaceholderPEM(commonName string, sans []string, notBefore, notAfter time.Time) string {

@@ -73,5 +73,6 @@ func (s *Service) List(ctx context.Context, options domain.ListOptions) ([]domai
 }
 
 func (s *Service) Issue(ctx context.Context, request domain.IssueRequest) (domain.IssueResult, error) {
+	request = request.Clone()
 	return s.issuerPort.Issue(ctx, request)
 }

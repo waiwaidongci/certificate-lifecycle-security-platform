@@ -42,7 +42,18 @@ type IssueRequest struct {
 }
 
 func (r IssueRequest) Clone() IssueRequest {
-	return r
+	clone := IssueRequest{
+		CommonName:   r.CommonName,
+		ValidityDays: r.ValidityDays,
+		ServiceID:    r.ServiceID,
+		Environment:  r.Environment,
+	}
+	if len(r.SANs) == 0 {
+		return clone
+	}
+	clone.SANs = make([]string, len(r.SANs))
+	copy(clone.SANs, r.SANs)
+	return clone
 }
 
 type IssueResult struct {
