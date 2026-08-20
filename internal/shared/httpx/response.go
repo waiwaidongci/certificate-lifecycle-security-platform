@@ -3,11 +3,36 @@ package httpx
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/acme/certpilot/internal/shared/apperror"
 )
+
+// ReadAndClose consumes a bounded response body and reports read failures.
+func ReadAndClose(body io.ReadCloser, limit int) ([]byte, error) {
+	return readAndCloseResponse(body, limit)
+}
+
+func readAndCloseResponse(body io.ReadCloser, limit int) ([]byte, error) {
+	if body == nil {
+		return nil, fmt.Errorf("response body is nil")
+	}
+	if limit <= 0 {
+		limit = 64 * 1024
+	}
+	data, err := io.ReadAll(io.LimitReader(body, int64(limit)+1))
+	if err != nil {
+		return nil, fmt.Errorf("read response body: %w", err)
+	}
+	if len(data) > limit {
+		return nil, fmt.Errorf("response body exceeds %d bytes", limit)
+	}
+	return []byte(strings.TrimSpace(string(data))), nil
+}
 
 type ErrorResponse struct {
 	Code      string         `json:"code"`

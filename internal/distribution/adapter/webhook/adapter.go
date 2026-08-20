@@ -43,9 +43,5 @@ func (a *Adapter) Send(ctx context.Context, record domain.DistributionRecord) (s
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		return "", fmt.Errorf("webhook returned status %d", resp.StatusCode)
-	}
-	return "webhook accepted", nil
+	return readWebhookResponse(resp)
 }
