@@ -10,7 +10,7 @@ import (
 )
 
 type Metrics struct {
-	mu           sync.Mutex
+	mu           sync.RWMutex
 	counters     map[string]*atomic.Int64
 	histogramSum map[string]*atomic.Int64
 	histogramCnt map[string]*atomic.Int64
@@ -36,8 +36,8 @@ func (m *Metrics) Observe(name string, value float64) {
 func (m *Metrics) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-		m.mu.Lock()
-		defer m.mu.Unlock()
+		m.mu.RLock()
+		defer m.mu.RUnlock()
 		keys := make([]string, 0, len(m.counters)+len(m.histogramCnt))
 		for key := range m.counters {
 			keys = append(keys, "counter:"+key)
