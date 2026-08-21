@@ -1,4 +1,0 @@
-# import config
-packagefile context=/Users/ali/Library/Caches/go-build/e5/e5418dbebca1057a6c8652a7e77d64335cfaadbae23ad7220ae88cef533b7c51-d
-packagefile github.com/acme/certpilot/internal/notification/domain=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b301/_pkg_.a
-packagefile github.com/acme/certpilot/internal/shared/logger=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b082/_pkg_.a
