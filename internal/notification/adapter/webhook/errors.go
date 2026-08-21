@@ -1,24 +1,34 @@
 package webhook
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"net/http"
+)
 
 var ErrWebhookRejected = errors.New("webhook rejected notification")
 
 type DeliveryError struct {
 	StatusCode int
+	Operation  string
+}
+
+func NewDeliveryError(operation string, statusCode int) *DeliveryError {
+	return &DeliveryError{Operation: operation, StatusCode: statusCode}
 }
 
 func (e *DeliveryError) Error() string {
-	return "webhook returned status " + httpStatusText(e.StatusCode)
-}
-
-func httpStatusText(code int) string {
-	if code == 0 {
-		return "unknown"
+	operation := e.Operation
+	if operation == "" {
+		operation = "send notification webhook"
 	}
-	return formatStatusCode(code)
+	return fmt.Sprintf("%s: webhook returned status %d (%s)", operation, e.StatusCode, http.StatusText(e.StatusCode))
 }
 
-func formatStatusCode(code int) string {
-	return string(rune('0'+code/100)) + string(rune('0'+(code/10)%10)) + string(rune('0'+code%10))
+func (e *DeliveryError) Unwrap() error { return ErrWebhookRejected }
+
+func (e *DeliveryError) Is(target error) bool {
+	return target == ErrWebhookRejected
 }
+
+func (e *DeliveryError) Status() int { return e.StatusCode }
