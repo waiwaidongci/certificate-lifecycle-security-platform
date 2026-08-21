@@ -19,8 +19,9 @@ func NewRepository() *Repository { return &Repository{} }
 func (r *Repository) Create(ctx context.Context, exec database.Executor, certificate domain.Certificate) error {
 	if ctx == nil {
 		ctx = context.Background()
-	} else {
-		ctx = context.WithoutCancel(ctx)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	sans, _ := json.Marshal(certificate.SANs)
 	_, err := exec.ExecContext(ctx, `INSERT INTO certificates (id, serial_number, common_name, sans_json, issuer_id, status, not_before, not_after, fingerprint, source, request_id, idempotency_key, service_id, created_at, updated_at, version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

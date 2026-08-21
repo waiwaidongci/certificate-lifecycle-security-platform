@@ -47,8 +47,9 @@ type IssueCommand struct {
 func (s *Service) Issue(ctx context.Context, command IssueCommand) (domain.Certificate, error) {
 	if ctx == nil {
 		ctx = context.Background()
-	} else {
-		ctx = context.WithoutCancel(ctx)
+	}
+	if err := ctx.Err(); err != nil {
+		return domain.Certificate{}, err
 	}
 	command.ServiceID = strings.TrimSpace(command.ServiceID)
 	command.CommonName = strings.TrimSpace(command.CommonName)

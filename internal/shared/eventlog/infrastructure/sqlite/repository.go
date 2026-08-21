@@ -20,8 +20,9 @@ func NewRepository() *Repository {
 func (r *Repository) Create(ctx context.Context, exec database.Executor, event domain.Event) error {
 	if ctx == nil {
 		ctx = context.Background()
-	} else {
-		ctx = context.WithoutCancel(ctx)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	metadata, _ := json.Marshal(event.Metadata)
 	_, err := exec.ExecContext(ctx, `INSERT INTO event_logs (id, actor, action, entity_type, entity_id, metadata_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
