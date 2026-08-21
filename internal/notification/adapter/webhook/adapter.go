@@ -36,7 +36,7 @@ func (a *Adapter) Send(ctx context.Context, reminder domain.Reminder) (string, e
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
-		return "", fmt.Errorf("webhook returned status %d", resp.StatusCode)
+		return "", &DeliveryError{StatusCode: resp.StatusCode}
 	}
 	return "webhook accepted", nil
 }

@@ -12,6 +12,10 @@ func (e *DeliveryError) Error() string {
 	return "webhook returned status " + httpStatusText(e.StatusCode)
 }
 
+func (e *DeliveryError) Unwrap() error {
+	return ErrWebhookRejected
+}
+
 func httpStatusText(code int) string {
 	if code == 0 {
 		return "unknown"
