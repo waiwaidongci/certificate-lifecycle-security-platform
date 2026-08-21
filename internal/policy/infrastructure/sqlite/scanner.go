@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/acme/certpilot/internal/policy/domain"
@@ -16,6 +17,12 @@ type scanner interface {
 }
 
 func scanPolicy(row scanner) (domain.Policy, error) {
+	if row == nil {
+		return domain.Policy{}, apperror.Internal(errors.New("policy row is nil"))
+	}
+	if typedNilScanner(row) {
+		return domain.Policy{}, apperror.Internal(errors.New("policy row is nil"))
+	}
 	var policy domain.Policy
 	var environmentsRaw, domainsRaw string
 	var enabled int
@@ -32,4 +39,14 @@ func scanPolicy(row scanner) (domain.Policy, error) {
 	policy.CreatedAt, _ = time.Parse(time.RFC3339Nano, createdAt)
 	policy.UpdatedAt, _ = time.Parse(time.RFC3339Nano, updatedAt)
 	return policy, nil
+}
+
+func typedNilScanner(row scanner) bool {
+	value := reflect.ValueOf(row)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+		return value.IsNil()
+	default:
+		return false
+	}
 }
