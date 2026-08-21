@@ -171,8 +171,8 @@ func validate(policy domain.Policy) error {
 }
 
 func cleanStrings(values []string) []string {
-	result := values[:0]
-	for _, value := range values {
+	result := make([]string, 0, len(values))
+	for _, value := range domain.CopyStrings(values) {
 		value = strings.TrimSpace(value)
 		if value != "" {
 			result = append(result, value)

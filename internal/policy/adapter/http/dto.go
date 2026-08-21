@@ -1,6 +1,9 @@
 package http
 
-import "github.com/acme/certpilot/internal/policy/application"
+import (
+	"github.com/acme/certpilot/internal/policy/application"
+	"github.com/acme/certpilot/internal/policy/domain"
+)
 
 type policyCreateRequest struct {
 	Name            string   `json:"name"`
@@ -14,10 +17,10 @@ type policyCreateRequest struct {
 func (r policyCreateRequest) command() application.CreateCommand {
 	return application.CreateCommand{
 		Name:            r.Name,
-		Environments:    r.Environments,
+		Environments:    domain.CopyStrings(r.Environments),
 		MinValidityDays: r.MinValidityDays,
 		MaxValidityDays: r.MaxValidityDays,
-		AllowedDomains:  r.AllowedDomains,
+		AllowedDomains:  domain.CopyStrings(r.AllowedDomains),
 		Enabled:         r.Enabled,
 	}
 }

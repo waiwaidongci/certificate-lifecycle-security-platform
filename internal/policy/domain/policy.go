@@ -20,6 +20,15 @@ type Policy struct {
 	Version         int       `json:"version"`
 }
 
+func CopyStrings(values []string) []string {
+	if values == nil {
+		return nil
+	}
+	cloned := make([]string, len(values))
+	copy(cloned, values)
+	return cloned
+}
+
 type Repository interface {
 	Create(ctx context.Context, exec database.Executor, policy Policy) error
 	Get(ctx context.Context, exec database.Executor, id string) (Policy, error)
