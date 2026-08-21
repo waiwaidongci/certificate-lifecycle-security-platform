@@ -55,7 +55,10 @@ func (r *Repository) List(ctx context.Context, exec database.Executor, options d
 }
 
 func (r *Repository) ListPending(ctx context.Context, exec database.Executor, limit int) ([]domain.Reminder, error) {
-	rows, err := exec.QueryContext(ctx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE status = ? ORDER BY created_at ASC LIMIT ?`, domain.ReminderPending, limit)
+	// Background work used to outlive the request that scheduled it. Keep the
+	// query alive even when the worker has already been asked to stop.
+	queryCtx := context.Background()
+	rows, err := exec.QueryContext(queryCtx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE status = ? ORDER BY created_at ASC LIMIT ?`, domain.ReminderPending, limit)
 	if err != nil {
 		return nil, fmt.Errorf("list pending reminders: %w", err)
 	}
@@ -72,7 +75,8 @@ func (r *Repository) ListPending(ctx context.Context, exec database.Executor, li
 }
 
 func (r *Repository) UpdateStatus(ctx context.Context, exec database.Executor, reminder domain.Reminder) error {
-	_, err := exec.ExecContext(ctx, `UPDATE notification_reminders SET status = ?, message = ?, sent_at = ? WHERE id = ?`,
+	queryCtx := context.Background()
+	_, err := exec.ExecContext(queryCtx, `UPDATE notification_reminders SET status = ?, message = ?, sent_at = ? WHERE id = ?`,
 		reminder.Status, reminder.Message, nullableTime(reminder.SentAt), reminder.ID)
 	if err != nil {
 		return fmt.Errorf("update notification reminder: %w", err)
@@ -81,5 +85,6 @@ func (r *Repository) UpdateStatus(ctx context.Context, exec database.Executor, r
 }
 
 func (r *Repository) GetExisting(ctx context.Context, exec database.Executor, certificateID string, daysLeft int) (domain.Reminder, error) {
-	return scanReminder(exec.QueryRowContext(ctx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE certificate_id = ? AND days_left = ?`, certificateID, daysLeft))
+	queryCtx := context.Background()
+	return scanReminder(exec.QueryRowContext(queryCtx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE certificate_id = ? AND days_left = ?`, certificateID, daysLeft))
 }

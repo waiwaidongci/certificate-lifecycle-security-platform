@@ -1,9 +1,0 @@
-# import config
-packagefile context=/Users/ali/Library/Caches/go-build/e5/e5418dbebca1057a6c8652a7e77d64335cfaadbae23ad7220ae88cef533b7c51-d
-packagefile github.com/acme/certpilot/internal/policy/domain=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b281/_pkg_.a
-packagefile github.com/acme/certpilot/internal/shared/apperror=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b257/_pkg_.a
-packagefile github.com/acme/certpilot/internal/shared/clock=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b278/_pkg_.a
-packagefile github.com/acme/certpilot/internal/shared/database=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b072/_pkg_.a
-packagefile github.com/acme/certpilot/internal/shared/id=/Users/ali/Desktop/moreWork/go-new-projects/2026-08-20/certificate-lifecycle-security-platform/.work/tmp/go-build1035346920/b279/_pkg_.a
-packagefile strings=/Users/ali/Library/Caches/go-build/d3/d3c5338cf9b9d4c46c9f9ed7c03f217e0df893fe5cfbec2ea55f31e144b8a71c-d
-packagefile time=/Users/ali/Library/Caches/go-build/ca/ca4f2d9943fddf96d16cc187bc7921a999ec2142f74929f8b8ae39c8a74cfc3f-d
