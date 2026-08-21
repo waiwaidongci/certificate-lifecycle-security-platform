@@ -171,7 +171,7 @@ func validate(policy domain.Policy) error {
 }
 
 func cleanStrings(values []string) []string {
-	result := values[:0]
+	result := make([]string, 0, len(values))
 	for _, value := range values {
 		value = strings.TrimSpace(value)
 		if value != "" {

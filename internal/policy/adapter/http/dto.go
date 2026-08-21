@@ -12,12 +12,16 @@ type policyCreateRequest struct {
 }
 
 func (r policyCreateRequest) command() application.CreateCommand {
+	environments := make([]string, len(r.Environments))
+	copy(environments, r.Environments)
+	allowedDomains := make([]string, len(r.AllowedDomains))
+	copy(allowedDomains, r.AllowedDomains)
 	return application.CreateCommand{
 		Name:            r.Name,
-		Environments:    r.Environments,
+		Environments:    environments,
 		MinValidityDays: r.MinValidityDays,
 		MaxValidityDays: r.MaxValidityDays,
-		AllowedDomains:  r.AllowedDomains,
+		AllowedDomains:  allowedDomains,
 		Enabled:         r.Enabled,
 	}
 }
