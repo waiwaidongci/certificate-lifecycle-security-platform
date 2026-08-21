@@ -55,28 +55,40 @@ func (r *Repository) List(ctx context.Context, exec database.Executor, options d
 }
 
 func (r *Repository) ListPending(ctx context.Context, exec database.Executor, limit int) ([]domain.Reminder, error) {
-	// Background work used to outlive the request that scheduled it. Keep the
-	// query alive even when the worker has already been asked to stop.
-	queryCtx := context.Background()
-	rows, err := exec.QueryContext(queryCtx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE status = ? ORDER BY created_at ASC LIMIT ?`, domain.ReminderPending, limit)
+	if err := contextErr(ctx); err != nil {
+		return nil, err
+	}
+	rows, err := exec.QueryContext(ctx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE status = ? ORDER BY created_at ASC LIMIT ?`, domain.ReminderPending, limit)
 	if err != nil {
 		return nil, fmt.Errorf("list pending reminders: %w", err)
 	}
 	defer rows.Close()
 	items := make([]domain.Reminder, 0, limit)
 	for rows.Next() {
+		if err := contextErr(ctx); err != nil {
+			_ = rows.Close()
+			return nil, err
+		}
 		item, err := scanReminder(rows)
 		if err != nil {
 			return nil, err
 		}
 		items = append(items, item)
 	}
-	return items, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if err := contextErr(ctx); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 func (r *Repository) UpdateStatus(ctx context.Context, exec database.Executor, reminder domain.Reminder) error {
-	queryCtx := context.Background()
-	_, err := exec.ExecContext(queryCtx, `UPDATE notification_reminders SET status = ?, message = ?, sent_at = ? WHERE id = ?`,
+	if err := contextErr(ctx); err != nil {
+		return err
+	}
+	_, err := exec.ExecContext(ctx, `UPDATE notification_reminders SET status = ?, message = ?, sent_at = ? WHERE id = ?`,
 		reminder.Status, reminder.Message, nullableTime(reminder.SentAt), reminder.ID)
 	if err != nil {
 		return fmt.Errorf("update notification reminder: %w", err)
@@ -85,6 +97,15 @@ func (r *Repository) UpdateStatus(ctx context.Context, exec database.Executor, r
 }
 
 func (r *Repository) GetExisting(ctx context.Context, exec database.Executor, certificateID string, daysLeft int) (domain.Reminder, error) {
-	queryCtx := context.Background()
-	return scanReminder(exec.QueryRowContext(queryCtx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE certificate_id = ? AND days_left = ?`, certificateID, daysLeft))
+	if err := contextErr(ctx); err != nil {
+		return domain.Reminder{}, err
+	}
+	return scanReminder(exec.QueryRowContext(ctx, `SELECT id, certificate_id, service_id, days_left, channel, recipient, status, message, sent_at, created_at FROM notification_reminders WHERE certificate_id = ? AND days_left = ?`, certificateID, daysLeft))
+}
+
+func contextErr(ctx context.Context) error {
+	if ctx == nil {
+		return nil
+	}
+	return ctx.Err()
 }

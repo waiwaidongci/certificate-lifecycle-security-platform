@@ -16,6 +16,11 @@ func NewAdapter(log *logger.Logger) *Adapter {
 }
 
 func (a *Adapter) Send(ctx context.Context, reminder domain.Reminder) (string, error) {
-	a.log.Info(context.Background(), "notification sent through log adapter", "reminder_id", reminder.ID, "recipient", reminder.Recipient)
+	if ctx != nil {
+		if err := ctx.Err(); err != nil {
+			return "", err
+		}
+	}
+	a.log.Info(ctx, "notification sent through log adapter", "reminder_id", reminder.ID, "recipient", reminder.Recipient)
 	return "logged", nil
 }
